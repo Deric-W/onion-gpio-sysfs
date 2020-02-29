@@ -25,8 +25,8 @@ GPIO_OUTPUT_DIRECTION = 'out'
 GPIO_OUTPUT_DIRECTION_LOW = 'low'
 GPIO_OUTPUT_DIRECTION_HIGH = 'high'
 
-_GPIO_ACTIVE_HIGH = 0
-_GPIO_ACTIVE_LOW = 1
+GPIO_ACTIVE_HIGH = 0
+GPIO_ACTIVE_LOW = 1
 
 
 class OnionGpio:
@@ -38,7 +38,7 @@ class OnionGpio:
         path = GPIO_PATH % self.gpio   # directory containing the gpio files
         self.gpioValueFile = path + '/' + GPIO_VALUE_FILE  # file to set/get value
         self.gpioDirectionFile = path + '/' + GPIO_DIRECTION_FILE  # file to set/get direction
-        self.activeLowFile = path + '/' + GPIO_ACTIVE_LOW_FILE
+        self.gpioActiveLowFile = path + '/' + GPIO_ACTIVE_LOW_FILE
         self.verbose = verbose
 
         if self.verbose > 0:
@@ -133,64 +133,36 @@ class OnionGpio:
 
     # active-low functions
 
-'''    def getActiveLow(self):
+    def getActiveLow(self):
         """Read if current GPIO is active-low"""
 
         # generate the gpio sysfs instance
-        status = self._initGpio()
+        self._initGpio()
 
-        if status != _EXIT_SUCCESS:
-            return _EXIT_FAILURE
+        try:
+            with open(self.gpioActiveLowFile, 'r') as fd:
+                return int(fd.read())   # catch ValueError if file content not integer
+        finally:    # release the gpio sysfs instance
+            self._freeGpio()
 
-        gpioFile = self.path + '/' + GPIO_ACTIVE_LOW_FILE
-        activeLow = _EXIT_FAILURE
-
-        with open(gpioFile, 'r') as fd:
-            activeLow = fd.read()
-            fd.close()
-            if self.verbose > 0:
-                print('onionGpio:getActiveLow:: Reading %s file ... Read %s'
-                      % (gpioFile, activeLow))
-
-        # release the gpio sysfs instance
-        status = self._freeGpio()
-
-        return activeLow
-
-    def _setActiveLow(self, activeLow):
+    def setActiveLow(self, activeLow):
         """Set the desired GPIO direction"""
 
-        ret = _EXIT_FAILURE
-
         # generate the gpio sysfs instance
+        self._initGpio()
 
-        status = self._initGpio()
-
-        if status != _EXIT_SUCCESS:
-            return _EXIT_FAILURE
-
-        gpioFile = self.path + '/' + GPIO_ACTIVE_LOW_FILE
-
-        if activeLow == _GPIO_ACTIVE_HIGH or activeLow == _GPIO_ACTIVE_LOW:
-            with open(gpioFile, 'w') as fd:
-                if self.verbose > 0:
-                    print('onionGpio:_setActiveLow:: Writing %s to %s file'
-                          % (str(activeLow), gpioFile))
+        try:
+            with open(self.gpioActiveLowFile, 'w') as fd:
                 fd.write(str(activeLow))
-                fd.close()
-                ret = _EXIT_SUCCESS
-
-        # release the gpio sysfs instance
-        status = self._freeGpio()
+        finally:    # release the gpio sysfs instance
+            self._freeGpio()
         # note: active_low setting is reset when the gpio sysfs interface
         # is released!
-        return ret
 
-    def setActiveHigh(self):
-        ret = self._setActiveLow(_GPIO_ACTIVE_HIGH)
-        return ret
+    def setActiveLowHigh(self):
+        """set active_low to high"""
+        self.setActiveLow(GPIO_ACTIVE_HIGH)
 
-    def setActiveLow(self):
-        ret = self._setActiveLow(_GPIO_ACTIVE_LOW)
-        return ret
-'''
+    def setActiveLowLow(self):
+        """set active_low to low"""
+        self.setActiveLow(GPIO_ACTIVE_LOW)
