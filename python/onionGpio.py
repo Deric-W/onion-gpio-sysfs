@@ -1,9 +1,9 @@
 "module for interfacing with gpio pins on the onion"
 
-__version__ = '0.1.2'
+__version__ = '0.2'
+__author__ = 'Lazar, Justin Duplessis and Eric Wolf'
+__maintainer__ = 'Eric Wolf'    # for this fork
 
-_EXIT_SUCCESS = 0
-_EXIT_FAILURE = -1
 
 # file paths
 GPIO_BASE_PATH = '/sys/class/gpio'
@@ -33,16 +33,13 @@ class OnionGpio:
 
     """Base class for sysfs GPIO access"""
 
-    def __init__(self, gpio, verbose=0):
+    def __init__(self, gpio):
         self.gpio = gpio    # gpio number
         path = GPIO_PATH % self.gpio   # directory containing the gpio files
         self.gpioValueFile = path + '/' + GPIO_VALUE_FILE  # file to set/get value
         self.gpioDirectionFile = path + '/' + GPIO_DIRECTION_FILE  # file to set/get direction
-        self.gpioActiveLowFile = path + '/' + GPIO_ACTIVE_LOW_FILE
-        self.verbose = verbose
+        self.gpioActiveLowFile = path + '/' + GPIO_ACTIVE_LOW_FILE # file to set/get active_low
 
-        if self.verbose > 0:
-            print('GPIO%d path: %s' % (self.gpio, path))
 
     def _initGpio(self):
         """Write to the gpio export to make the gpio available in sysfs"""
@@ -83,6 +80,16 @@ class OnionGpio:
                 fd.write(str(value))
         finally:    # release the gpio sysfs instance
             self._freeGpio()
+
+
+    def setValueLow(self):
+        """set gpio value to low"""
+        self.setValue(GPIO_VALUE_LOW)
+
+
+    def setValueHigh(self):
+        """set gpio value to high"""
+        self.setValue(GPIO_VALUE_HIGH)
 
     # direction functions
 
@@ -145,6 +152,7 @@ class OnionGpio:
         finally:    # release the gpio sysfs instance
             self._freeGpio()
 
+
     def setActiveLow(self, activeLow):
         """Set the desired GPIO direction"""
 
@@ -159,9 +167,11 @@ class OnionGpio:
         # note: active_low setting is reset when the gpio sysfs interface
         # is released!
 
+
     def setActiveLowHigh(self):
         """set active_low to high"""
         self.setActiveLow(GPIO_ACTIVE_HIGH)
+
 
     def setActiveLowLow(self):
         """set active_low to low"""
