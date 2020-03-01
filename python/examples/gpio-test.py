@@ -2,59 +2,38 @@ import onionGpio
 
 pin = 14
 
-print '> Instantiating gpio object'
-gpio14 	= onionGpio.OnionGpio(pin)
-print ''
+print('> Instantiating gpio object')
+gpio14 = onionGpio.OnionGpio(pin)
 
-print '> Set direction to input... '
-ret 	= gpio14.setInputDirection()
-print '    returned %d'%ret
+print('> Set direction to input... ')
+gpio14.setInputDirection()
 
-print '> Get direction: ',
-direction 	= gpio14.getDirection()
-print direction
+print('> Get direction: ', gpio14.getDirection())
 
-print '> Read value: ',
-val		= gpio14.getValue()
-print val
+print('> Read value: ', gpio14.getValue())
 
 
+input('Ready to test output?')
 
-raw_input('Ready to test output?')
+print('> Set direction to output... ')
+gpio14.setOutputDirection()
 
-print '> Set direction to output... '
-ret 	= gpio14.setOutputDirection()
-print '    returned %d'%ret
+print('> Get direction: ', gpio14.getDirection())
 
-print '> Get direction: ',
-direction 	= gpio14.getDirection()
-print direction
+print('> Read value: ', gpio14.getValue())
 
 
-print '> Read value: ',
-val		= gpio14.getValue()
-print val
+print('> Set value to 1... ')
+gpio14.setValue(onionGpio.GPIO_VALUE_HIGH)
+
+print('> Read value: ', gpio14.getValue())
 
 
-print '> Set value to 1... '
-ret		= gpio14.setValue(1)
-print '    returned %d'%ret
+print('> Set value to 0... ')
+gpio14.setValue(onionGpio.GPIO_VALUE_LOW)
 
-print '> Read value: ',
-val		= gpio14.getValue()
-print val
+print('> Read value: ', gpio14.getValue())
 
 
-print ''
-print '> Set value to 0... '
-ret		= gpio14.setValue(1)
-print '    returned %d'%ret
-
-print '> Read value: ',
-val		= gpio14.getValue()
-print val
-
-
-
-print ''
-print '> Done!'
+print()
+print('> Done!')

@@ -7,19 +7,18 @@ gpioNum = 6
 gpioObj	= onionGpio.OnionGpio(gpioNum)
 
 # set to input 
-status 	= gpioObj.setOutputDirection()
-print 'GPIO%d set to output,'%(gpioNum),
+gpioObj.setOutputDirection()
+print('GPIO%d set to output,' % gpioNum, end="")
 
 # read the value
-value 	= gpioObj.getValue()
-print ' initial value: %d'%(int(value))
-
+value = gpioObj.getValue()
+print(' initial value: %d' % value)
 
 ## GOING FURTHER
 # Try changing line 10 to: 
-#  status 	= gpioObj.setOutputDirection(0)
+#  gpioObj.setOutputDirection(onionGpio.GPIO_OUTPUT_DIRECTION_LOW)
 # or
-#  status 	= gpioObj.setOutputDirection(1)
+#  gpioObj.setOutputDirection(onionGpio.GPIO_OUTPUT_DIRECTION_HIGH)
 #
 # And see how the initial value changes :)
 #

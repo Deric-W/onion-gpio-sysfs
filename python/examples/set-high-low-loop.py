@@ -8,21 +8,19 @@ gpioNum = 1
 gpioObj	= onionGpio.OnionGpio(gpioNum)
 
 # set to output 
-status 	= gpioObj.setOutputDirection(0)		# initialize the GPIO to 0 (LOW)
+gpioObj.setOutputDirection(onionGpio.GPIO_VALUE_LOW)		# initialize the GPIO to 0 (LOW)
 
 # alternate the value
-loop 	= 1
-value 	= 0
-while loop == 1:
+value = onionGpio.GPIO_VALUE_LOW
+while True:
 	# reverse the value
-	if value == 0:
-		value = 1
+	if value == onionGpio.GPIO_VALUE_LOW:
+		value = onionGpio.GPIO_VALUE_HIGH
 	else:
-		value = 0
+		value = onionGpio.GPIO_VALUE_LOW
 	
 	# set the new value
-	status 	= gpioObj.setValue(value)
-	print 'GPIO%d set to: %d'%(gpioNum, value)
+	gpioObj.setValue(value)
+	print('GPIO%d set to: %d' % (gpioNum, value))
 	
 	time.sleep(5)
-
