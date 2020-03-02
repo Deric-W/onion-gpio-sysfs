@@ -6,7 +6,7 @@ print('> Instantiating gpio object')
 gpio14 	= onionGpio.OnionGpio(pin)
 
 print('> Set active-high')
-gpio14.setActiveLowHigh()
+gpio14.setActiveLowFalse()
 
 print('> Get active-low: ', gpio14.getActiveLow())
 
@@ -53,7 +53,7 @@ print('> Read value: ', gpio14.getValue())
 
 
 print('> Set to active-low...')
-gpio14.setActiveLowLow()
+gpio14.setActiveLowTrue()
 
 print('> Get active-low: ', gpio14.getActiveLow())
 

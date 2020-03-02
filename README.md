@@ -9,9 +9,10 @@ Module to control GPIOs using the sysfs interface
  - pointless makefile removed
  - the unexport of the sysfs interface now takes place even if a Exception occured to prevent blocking the interface
  - added the `setValueLow` and `setValueHigh` convenience methods
+ - added the `getEdge` and `waitForEdge` methods
  - exposed the `setDirection` method
  - exposed the `setActiveLow` method
- - renamed original `setActiveLow` and `setActiveHigh` to `setActiveLowLow` and `setActiveLowHigh`
+ - renamed original `setActiveLow` and `setActiveHigh` to `setActiveLowTrue` and `setActiveLowFalse`
  - removed multiple input checks, use the constants of this module to interact with the methods or use the convenience methods
  - removed at least one occasion of Error hiding
  - removed the verbose argument, logging should be done by the application itself

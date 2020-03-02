@@ -1,4 +1,5 @@
 "module for interfacing with gpio pins on the onion"
+from select import select
 
 __version__ = '0.2'
 __author__ = 'Lazar, Justin Duplessis and Eric Wolf'
@@ -14,6 +15,7 @@ GPIO_PATH = GPIO_BASE_PATH + '/gpio%d'
 GPIO_VALUE_FILE = 'value'
 GPIO_DIRECTION_FILE = 'direction'
 GPIO_ACTIVE_LOW_FILE = 'active_low'
+GPIO_EDGE_FILE = 'edge'
 
 # gpio values
 GPIO_VALUE_LOW = 0
@@ -25,9 +27,15 @@ GPIO_OUTPUT_DIRECTION = 'out'
 GPIO_OUTPUT_DIRECTION_LOW = 'low'
 GPIO_OUTPUT_DIRECTION_HIGH = 'high'
 
+# gpio active_low options
 GPIO_ACTIVE_HIGH = 0
 GPIO_ACTIVE_LOW = 1
 
+# gpio edges
+GPIO_EDGE_NONE = 'none'
+GPIO_EDGE_RISING = 'rising'
+GPIO_EDGE_FALLING = 'falling'
+GPIO_EDGE_BOTH = 'both'
 
 class OnionGpio:
 
@@ -39,6 +47,7 @@ class OnionGpio:
         self.gpioValueFile = path + '/' + GPIO_VALUE_FILE  # file to set/get value
         self.gpioDirectionFile = path + '/' + GPIO_DIRECTION_FILE  # file to set/get direction
         self.gpioActiveLowFile = path + '/' + GPIO_ACTIVE_LOW_FILE # file to set/get active_low
+        self.gpioEdgeFile = path + '/' + GPIO_EDGE_FILE # file to set/get edge
 
 
     def _initGpio(self):
@@ -102,7 +111,7 @@ class OnionGpio:
         try:
             # read from the direction file
             with open(self.gpioDirectionFile, 'r') as fd:
-                return fd.read()
+                return fd.read().rstrip("\n")
 
         finally:    # release the gpio sysfs instance
             self._freeGpio()
@@ -168,11 +177,37 @@ class OnionGpio:
         # is released!
 
 
-    def setActiveLowHigh(self):
-        """set active_low to high"""
+    def setActiveLowFalse(self):
+        """set active_low to not invert"""
         self.setActiveLow(GPIO_ACTIVE_HIGH)
 
 
-    def setActiveLowLow(self):
-        """set active_low to low"""
+    def setActiveLowTrue(self):
+        """set active_low to invert"""
         self.setActiveLow(GPIO_ACTIVE_LOW)
+
+    # edge methods
+
+    def getEdge(self):
+        """get edge setting of gpio"""
+        self._initGpio()
+        try:
+            with open(self.gpioEdgeFile, "r") as fd:
+                return fd.read().rstrip("\n")
+        finally:
+            self._freeGpio()
+
+    # setEdge would be pointless because it is reset when the sysfs interface is released,
+    # use waitForEdge instead
+
+    def waitForEdge(self, edge, timeout=None):
+        """wait for edge on gpio"""
+        self._initGpio()
+        try:
+            with open(self.gpioEdgeFile, "w") as fd:
+                fd.write(edge)
+            with open(self.gpioValueFile, "r") as fd:
+                fd.read()   # somehow needs to be read befor using select to work
+                select([], [], [fd], timeout)    # wait for value file exceptional condition
+        finally:
+            self._freeGpio()
