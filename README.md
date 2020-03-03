@@ -1,6 +1,6 @@
 # gpio-sysfs
 Module to control GPIOs using the sysfs interface
-[original docs](https://docs.onion.io/omega2-docs/gpio-python-module.html)
+[original docs](https://docs.onion.io/omega2-docs/gpio-python-module.html) [sysfs docs](https://www.kernel.org/doc/html/v5.5/driver-api/gpio/legacy.html#sysfs-interface-for-userspace-optional)
 
 ## Differences
 
