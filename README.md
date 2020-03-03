@@ -4,22 +4,35 @@ Module to control GPIOs using the sysfs interface
 
 ## Differences
 
- - return codes have been removed, catch Exceptions with try/except instead
- - `getValue` does now return a interger (or raises a `ValueError`)
+ - error return codes have been removed, catch Exceptions with try/except instead
+ - `getValue` and `getActiveLow` do now return a interger (or raise a `ValueError`)
  - pointless makefile removed
- - the unexport of the sysfs interface now takes place even if a Exception occured to prevent blocking the interface
+ - the export of the sysfs interface now takes place when the class is initialised instead of when a method is called
+    - the sysfs interface has to be unexported to prevent errors
+ - the unexport of the sysfs interface now takes place when the `release` method is called instead of when a method finishes
+   - has to be called once and is automatically called when using the class as a context manager (`with OnionGpio(i) as gpio:`)
  - added the `setValueLow` and `setValueHigh` convenience methods
- - added the `getEdge` and `waitForEdge` methods
- - exposed the `setDirection` method
- - exposed the `setActiveLow` method
+ - added the `getEdge`, `setEdge` and `waitForEdge` methods
+    - `getEdge` returns the edge setting of the GPIO as string
+    - `setEdge(edge)` is setting the edge setting of the GPIO
+    - `waitForEdge(edge=None)` is setting the `edge` if not `None` and waits for it to occur
+ - exposed the `setDirection(direction)` method which is setting the direction setting of the GPIO to `direction`
+ - exposed the `setActiveLow(active_low)` method which is setting the active_low setting of the GPIO to `active_low` 
  - renamed original `setActiveLow` and `setActiveHigh` to `setActiveLowTrue` and `setActiveLowFalse`
  - removed multiple input checks, use the constants of this module to interact with the methods or use the convenience methods
+    - `GPIO_VALUE_*` contains supported GPIO values
+    - `GPIO_DIRECTION_*` contains supported GPIO directions
+    - `GPIO_ACTIVE_*` contains supported active_low settings
+    - `GPIO_EDGE_*` contains supported GPIO edges
  - removed at least one occasion of Error hiding
+    - `setOutputDirection` now raises `ValueError` if the initial is not supported
  - removed the verbose argument, logging should be done by the application itself
 
 ## Compatibility
 
-Module now comptatible with all versions of Python !
+Module now compatible with all versions of Python !
+
+Examples now compatible with Python 3
 
 ## Install
 
