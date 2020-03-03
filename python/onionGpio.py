@@ -161,9 +161,10 @@ class OnionGpio:
         # is released!
 
 
-    def waitForEdge(self, edge, timeout=None):
+    def waitForEdge(self, edge=None, timeout=None):
         """wait for edge on gpio"""
-        self.setEdge(edge)
+        if edge is not None:
+            self.setEdge(edge)
         with open(self.gpioValueFile, "r") as fd:
             fd.read()   # somehow needs to be read before using select to work
             select([], [], [fd], timeout)    # wait for value file exceptional condition

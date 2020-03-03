@@ -15,7 +15,7 @@ Module to control GPIOs using the sysfs interface
  - added the `getEdge`, `setEdge` and `waitForEdge` methods
     - `getEdge` returns the edge setting of the GPIO as string
     - `setEdge(edge)` is setting the edge setting of the GPIO
-    - `waitForEdge(edge=None)` is setting the `edge` if not `None` and waits for it to occur
+    - `waitForEdge(edge=None, timeout=None)` is setting the `edge` if not `None` and waits for it to occur or the `timeout` to run out if not None
  - exposed the `setDirection(direction)` method which is setting the direction setting of the GPIO to `direction`
  - exposed the `setActiveLow(active_low)` method which is setting the active_low setting of the GPIO to `active_low` 
  - renamed original `setActiveLow` and `setActiveHigh` to `setActiveLowTrue` and `setActiveLowFalse`
