@@ -4,6 +4,8 @@ from select import select
 __version__ = '0.2'
 __author__ = 'Lazar, Justin Duplessis and Eric Wolf'
 __maintainer__ = 'Eric Wolf'    # for this fork
+__email__ = "robo-eric@gmx.de"
+__contact__ = "https://github.com/Deric-W/onion-gpio-sysfs"
 
 
 # file paths
@@ -48,47 +50,33 @@ class OnionGpio:
         self.gpioDirectionFile = path + '/' + GPIO_DIRECTION_FILE  # file to set/get direction
         self.gpioActiveLowFile = path + '/' + GPIO_ACTIVE_LOW_FILE # file to set/get active_low
         self.gpioEdgeFile = path + '/' + GPIO_EDGE_FILE # file to set/get edge
+        initGpio(gpio)  # init gpio sysfs interface
 
+    def release(self):
+        """release gpio sysfs interface"""  # call once per object
+        freeGpio(self.gpio)
 
-    def _initGpio(self):
-        """Write to the gpio export to make the gpio available in sysfs"""
+    # context manager methods
 
-        with open(GPIO_EXPORT, 'w') as fd:
-            fd.write(str(self.gpio))
+    def __enter__(self):
+        return self
 
-
-    def _freeGpio(self):
-        """Write to the gpio unexport to release the gpio sysfs instance"""
-
-        with open(GPIO_UNEXPORT, 'w') as fd:
-            fd.write(str(self.gpio))
+    def __exit__(self, type, value, traceback):
+        self.release()  # dont call inside context manager
+        return False    # we dont want to hide exceptions
 
     # value functions
 
     def getValue(self):
         """Read current GPIO value"""
-
-        # generate the gpio sysfs instance
-        self._initGpio()
-
-        try:
-            with open(self.gpioValueFile, 'r') as fd:
-                return int(fd.read())   # catch ValueError if file content not integer
-        finally:    # release the gpio sysfs instance
-            self._freeGpio()
+        with open(self.gpioValueFile, 'r') as fd:
+            return int(fd.read())   # catch ValueError if file content not integer
 
 
     def setValue(self, value):
         """Set the desired GPIO value"""
-
-        # generate the gpio sysfs instance
-        self._initGpio()
-
-        try:
-            with open(self.gpioValueFile, 'w') as fd:
-                fd.write(str(value))
-        finally:    # release the gpio sysfs instance
-            self._freeGpio()
+        with open(self.gpioValueFile, 'w') as fd:
+            fd.write(str(value))
 
 
     def setValueLow(self):
@@ -104,31 +92,16 @@ class OnionGpio:
 
     def getDirection(self):
         """Read current GPIO direction"""
-
-        # generate the gpio sysfs instance
-        self._initGpio()
-
-        try:
-            # read from the direction file
-            with open(self.gpioDirectionFile, 'r') as fd:
-                return fd.read().rstrip("\n")
-
-        finally:    # release the gpio sysfs instance
-            self._freeGpio()
+        # read from the direction file
+        with open(self.gpioDirectionFile, 'r') as fd:
+            return fd.read().rstrip("\n")
 
 
     def setDirection(self, direction):
         """Set the desired GPIO direction"""
-
-        # generate the gpio sysfs instance
-        self._initGpio()
-
-        try:
-            # write to the direction file
-            with open(self.gpioDirectionFile, 'w') as fd:
-                fd.write(direction)
-        finally:    # release the gpio sysfs instance
-            self._freeGpio()
+        # write to the direction file
+        with open(self.gpioDirectionFile, 'w') as fd:
+            fd.write(direction)
 
 
     def setInputDirection(self):
@@ -151,28 +124,14 @@ class OnionGpio:
 
     def getActiveLow(self):
         """Read if current GPIO is active-low"""
-
-        # generate the gpio sysfs instance
-        self._initGpio()
-
-        try:
-            with open(self.gpioActiveLowFile, 'r') as fd:
-                return int(fd.read())   # catch ValueError if file content not integer
-        finally:    # release the gpio sysfs instance
-            self._freeGpio()
+        with open(self.gpioActiveLowFile, 'r') as fd:
+            return int(fd.read())   # catch ValueError if file content not integer
 
 
     def setActiveLow(self, activeLow):
         """Set the desired GPIO direction"""
-
-        # generate the gpio sysfs instance
-        self._initGpio()
-
-        try:
-            with open(self.gpioActiveLowFile, 'w') as fd:
-                fd.write(str(activeLow))
-        finally:    # release the gpio sysfs instance
-            self._freeGpio()
+        with open(self.gpioActiveLowFile, 'w') as fd:
+            fd.write(str(activeLow))
         # note: active_low setting is reset when the gpio sysfs interface
         # is released!
 
@@ -190,24 +149,32 @@ class OnionGpio:
 
     def getEdge(self):
         """get edge setting of gpio"""
-        self._initGpio()
-        try:
-            with open(self.gpioEdgeFile, "r") as fd:
-                return fd.read().rstrip("\n")
-        finally:
-            self._freeGpio()
+        with open(self.gpioEdgeFile, "r") as fd:
+            return fd.read().rstrip("\n")
 
-    # setEdge would be pointless because it is reset when the sysfs interface is released,
-    # use waitForEdge instead
+
+    def setEdge(self, edge):
+        """set edge setting of gpio"""
+        with open(self.gpioEdgeFile, "w") as fd:
+            fd.write(edge)
+        # note: edge setting is reset when the gpio sysfs interface
+        # is released!
+
 
     def waitForEdge(self, edge, timeout=None):
         """wait for edge on gpio"""
-        self._initGpio()
-        try:
-            with open(self.gpioEdgeFile, "w") as fd:
-                fd.write(edge)
-            with open(self.gpioValueFile, "r") as fd:
-                fd.read()   # somehow needs to be read befor using select to work
-                select([], [], [fd], timeout)    # wait for value file exceptional condition
-        finally:
-            self._freeGpio()
+        self.setEdge(edge)
+        with open(self.gpioValueFile, "r") as fd:
+            fd.read()   # somehow needs to be read before using select to work
+            select([], [], [fd], timeout)    # wait for value file exceptional condition
+
+
+def initGpio(gpio):
+    """Write to the gpio export to make the gpio available in sysfs"""
+    with open(GPIO_EXPORT, 'w') as fd:
+        fd.write(str(gpio))
+
+def freeGpio(gpio):
+    """Write to the gpio unexport to release the gpio sysfs instance"""
+    with open(GPIO_UNEXPORT, 'w') as fd:
+        fd.write(str(gpio))
