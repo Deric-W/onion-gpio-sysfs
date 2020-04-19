@@ -1,4 +1,8 @@
-"module for interfacing with gpio pins on the onion"
+#!/usr/bin/python3
+
+"Module for interfacing with gpio pins on the onion"
+
+import errno
 from select import select
 
 __version__ = '0.2'
@@ -39,18 +43,25 @@ GPIO_EDGE_RISING = 'rising'
 GPIO_EDGE_FALLING = 'falling'
 GPIO_EDGE_BOTH = 'both'
 
-class OnionGpio:
+class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentation/gpio/sysfs.txt
 
     """Base class for sysfs GPIO access"""
 
-    def __init__(self, gpio):
+    def __init__(self, gpio, ignore_busy=False):
+        """init with the gpio pin number and if the interface being used should be ignored"""
         self.gpio = gpio    # gpio number
         path = GPIO_PATH % self.gpio   # directory containing the gpio files
         self.gpioValueFile = path + '/' + GPIO_VALUE_FILE  # file to set/get value
         self.gpioDirectionFile = path + '/' + GPIO_DIRECTION_FILE  # file to set/get direction
         self.gpioActiveLowFile = path + '/' + GPIO_ACTIVE_LOW_FILE # file to set/get active_low
         self.gpioEdgeFile = path + '/' + GPIO_EDGE_FILE # file to set/get edge
-        initGpio(gpio)  # init gpio sysfs interface
+        try:
+            initGpio(gpio)  # init gpio sysfs interface
+        except OSError as err:
+            if err.errno == errno.EBUSY and ignore_busy:    # interface already in use but we should ignore
+                pass
+            else:   # something else happend or we should not ignore the busy interface
+                raise
 
     def release(self):
         """release gpio sysfs interface"""  # call once per object
@@ -176,6 +187,6 @@ def initGpio(gpio):
         fd.write(str(gpio))
 
 def freeGpio(gpio):
-    """Write to the gpio unexport to release the gpio sysfs instance"""
+    """Write to the gpio unexport to release the gpio sysfs interface"""
     with open(GPIO_UNEXPORT, 'w') as fd:
         fd.write(str(gpio))
