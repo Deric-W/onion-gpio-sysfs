@@ -1,4 +1,5 @@
 import onionGpio
+from __future__ import print_function
 
 pin = 14
 

@@ -2,6 +2,7 @@
 # Set the GPIO to output, read and print the initial value
 
 import onionGpio
+from __future__ import print_function
 
 gpioNum = 6
 gpioObj	= onionGpio.OnionGpio(gpioNum)

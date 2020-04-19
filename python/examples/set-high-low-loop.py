@@ -3,6 +3,7 @@
 
 import time
 import onionGpio
+from __future__ import print_function
 
 gpioNum = 1
 gpioObj	= onionGpio.OnionGpio(gpioNum)
