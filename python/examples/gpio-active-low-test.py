@@ -1,64 +1,62 @@
-import onionGpio
-from __future__ import print_function
+from onionGpio import OnionGpio, ActiveLow, Direction, Value
 
-pin = 14
 
 print('> Instantiating gpio object')
-gpio14 	= onionGpio.OnionGpio(pin)
+with OnionGpio(14) as gpio14:
 
-print('> Set active-high')
-gpio14.setActiveLowFalse()
+    print('> Set active-high')
+    gpio14.setActiveLow(ActiveLow.HIGH)
 
-print('> Get active-low: ', gpio14.getActiveLow())
+    print('> Get active-low: ', gpio14.getActiveLow())
 
-print('> Set direction to input...')
-gpio14.setInputDirection()
+    print('> Set direction to input...')
+    gpio14.setDirection(Direction.INPUT)
 
-print('> Get direction: ', gpio14.getDirection())
+    print('> Get direction: ', gpio14.getDirection())
 
-print('> Read value: ', gpio14.getValue())
-
-
-input('Ready to test output?')
-
-print('> Set direction to output...')
-gpio14.setOutputDirection()
-
-print('> Get direction: ', gpio14.getDirection())
-
-print('> Read value: ', gpio14.getValue())
+    print('> Read value: ', gpio14.getValue())
 
 
-print('> Set value to 1...')
-gpio14.setValue(onionGpio.GPIO_VALUE_HIGH)
+    input('Ready to test output?')
 
-print('> Read value: ', gpio14.getValue())
+    print('> Set direction to output...')
+    gpio14.setDirection(Direction.OUTPUT)
 
+    print('> Get direction: ', gpio14.getDirection())
 
-print('> Set value to 0...')
-gpio14.setValue(onionGpio.GPIO_VALUE_LOW)
-
-print('> Read value: ', gpio14.getValue())
+    print('> Read value: ', gpio14.getValue())
 
 
-input('Ready to test active low?')
+    print('> Set value to 1...')
+    gpio14.setValue(Value.HIGH)
 
-print('> Set direction to input...')
-gpio14.setInputDirection()
-
-print('> Get direction: ', gpio14.getDirection())
-
-print('> Get active-low: ', gpio14.getActiveLow())
-
-print('> Read value: ', gpio14.getValue())
+    print('> Read value: ', gpio14.getValue())
 
 
-print('> Set to active-low...')
-gpio14.setActiveLowTrue()
+    print('> Set value to 0...')
+    gpio14.setValue(Value.LOW)
 
-print('> Get active-low: ', gpio14.getActiveLow())
+    print('> Read value: ', gpio14.getValue())
 
-print('> Read value: ', gpio14.getValue())
+
+    input('Ready to test active low?')
+
+    print('> Set direction to input...')
+    gpio14.setDirection(Direction.INPUT)
+
+    print('> Get direction: ', gpio14.getDirection())
+
+    print('> Get active-low: ', gpio14.getActiveLow())
+
+    print('> Read value: ', gpio14.getValue())
+
+
+    print('> Set to active-low...')
+    gpio14.setActiveLow(ActiveLow.LOW)
+
+    print('> Get active-low: ', gpio14.getActiveLow())
+
+    print('> Read value: ', gpio14.getValue())
 
 
 print()

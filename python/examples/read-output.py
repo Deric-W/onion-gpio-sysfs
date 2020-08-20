@@ -1,25 +1,22 @@
 ## EXAMPLE CODE
 # Set the GPIO to output, read and print the initial value
 
-import onionGpio
-from __future__ import print_function
+from onionGpio import OnionGpio, Direction
+
 
 gpioNum = 6
-gpioObj	= onionGpio.OnionGpio(gpioNum)
+with OnionGpio(gpioNum) as gpioObj: 
+    gpioObj.setDirection(Direction.OUTPUT)
+    print('GPIO%d set to output,' % gpioNum, end="")
 
-# set to input 
-gpioObj.setOutputDirection()
-print('GPIO%d set to output,' % gpioNum, end="")
+    # read the value
+    print(' initial value: %s' % gpioObj.getValue().name)
 
-# read the value
-value = gpioObj.getValue()
-print(' initial value: %d' % value)
-
-## GOING FURTHER
-# Try changing line 10 to: 
-#  gpioObj.setOutputDirection(onionGpio.GPIO_OUTPUT_DIRECTION_LOW)
-# or
-#  gpioObj.setOutputDirection(onionGpio.GPIO_OUTPUT_DIRECTION_HIGH)
-#
-# And see how the initial value changes :)
-#
+    ## GOING FURTHER
+    # Try changing line 10 to: 
+    #  gpioObj.setDirection(Direction.OUTPUT_LOW)
+    # or
+    #  gpioObj.setDirection(Direction.OUTPUT_HIGH)
+    #
+    # And see how the initial value changes :)
+    #

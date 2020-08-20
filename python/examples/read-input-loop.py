@@ -2,17 +2,15 @@
 # Set the GPIO to input, then read and print the value every second
 
 import time
-import onionGpio
-from __future__ import print_function
+from onionGpio import OnionGpio, Direction
+
 
 gpioNum = 7
-gpioObj	= onionGpio.OnionGpio(gpioNum)
+with OnionGpio(gpioNum) as gpioObj:
+	# set to input 
+	gpioObj.setDirection(Direction.INPUT)
 
-# set to input 
-gpioObj.setInputDirection()
-
-# read and print the value once a second
-while True:
-	value = gpioObj.getValue()
-	print('GPIO%d input value: %d' % (gpioNum, int(value)))
-	time.sleep(1)
+	# read and print the value once a second
+	while True:
+		print('GPIO%d input value: %s' % (gpioNum, gpioObj.getValue().name))
+		time.sleep(1)
