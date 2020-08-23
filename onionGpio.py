@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-"Module for interfacing with gpio pins on the onion"
+"Module for interfacing with gpio pins using the linux sysfs interface"
 
 from errno import EBUSY
 from enum import Enum
