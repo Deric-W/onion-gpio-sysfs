@@ -2,6 +2,7 @@
 
 "Module for interfacing with gpio pins using the linux sysfs interface"
 
+from os.path import isfile
 from errno import EBUSY
 from enum import Enum
 from typing import Optional
@@ -91,7 +92,6 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
         with open(self.gpioValueFile, 'r') as fd:
             return Value(fd.readline().rstrip("\n"))   # catch ValueError if file content is not 0 or 1
 
-
     def setValue(self, value: Value) -> None:
         """Set the desired GPIO value"""
         with open(self.gpioValueFile, 'w') as fd:
@@ -99,12 +99,15 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
 
     # direction functions
 
+    def supportsDirection(self) -> bool:
+        """check if the gpio supports setting the direction"""
+        return isfile(self.gpioDirectionFile)
+
     def getDirection(self) -> Direction:
         """Read current GPIO direction"""
         # read from the direction file
         with open(self.gpioDirectionFile, 'r') as fd:
             return Direction(fd.readline().rstrip("\n"))
-
 
     def setDirection(self, direction: Direction) -> None:
         """Set the desired GPIO direction"""
@@ -119,7 +122,6 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
         with open(self.gpioActiveLowFile, 'r') as fd:
             return ActiveLow(fd.readline().rstrip("\n"))   # catch ValueError if file content not valid
 
-
     def setActiveLow(self, active_low: ActiveLow) -> None:
         """Set the desired GPIO direction"""
         with open(self.gpioActiveLowFile, 'w') as fd:
@@ -129,11 +131,14 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
 
     # edge methods
 
+    def supportsEdge(self) -> bool:
+        """check if the gpio supports edges"""
+        return isfile(self.gpioEdgeFile)
+
     def getEdge(self) -> Edge:
         """get edge setting of gpio"""
         with open(self.gpioEdgeFile, "r") as fd:
             return Edge(fd.readline().rstrip("\n"))
-
 
     def setEdge(self, edge: Edge) -> None:
         """set edge setting of gpio"""
@@ -141,7 +146,6 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
             fd.write(edge.value)
         # note: edge setting is reset when the gpio sysfs interface
         # is released!
-
 
     def waitForEdge(self, timeout: Optional[int]=None) -> None:
         """wait for edge on gpio"""

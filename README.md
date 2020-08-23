@@ -11,6 +11,7 @@ Module to control GPIOs using the sysfs interface
     - the sysfs interface has to be unexported to prevent errors
  - the unexport of the sysfs interface now takes place when the `release` method is called instead of when a method finishes
    - has to be called once and is automatically called when using the class as a context manager (`with OnionGpio(i) as gpio:`)
+ - added the `supportsDirection` and `supportsEdge` methods to check if these settings can be changed
  - added the `getEdge`, `setEdge` and `waitForEdge` methods
     - `getEdge` returns the edge setting of the GPIO
     - `setEdge(edge)` is setting the edge setting of the GPIO
