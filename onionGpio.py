@@ -151,7 +151,8 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
         """wait for edge on gpio"""
         with open(self.gpioValueFile, "r") as fd:
             fd.read()   # somehow needs to be read before using select to work
-            select([], [], [fd], timeout)    # wait for value file exceptional condition
+            if fd not in select([], [], [fd], timeout)[2]:    # wait for value file exceptional condition
+                raise TimeoutError("received no edge on gpio {0}".format(self.gpio))
 
 
 def initGpio(gpio: int) -> None:
