@@ -8,62 +8,66 @@ from enum import Enum
 from typing import Optional
 from select import select
 
-__version__ = '0.3'
+__version__ = "0.3"
 __author__ = 'Lazar, Justin Duplessis and Eric Wolf'
-__maintainer__ = 'Eric Wolf'    # for this fork
+__maintainer__ = "Eric Wolf"    # for this fork
 __email__ = "robo-eric@gmx.de"
 __contact__ = "https://github.com/Deric-W/onion-gpio-sysfs"
 
 
 # file paths
-GPIO_BASE_PATH = '/sys/class/gpio'
-GPIO_EXPORT = GPIO_BASE_PATH + '/export'
-GPIO_UNEXPORT = GPIO_BASE_PATH + '/unexport'
+GPIO_BASE_PATH = "/sys/class/gpio"
+GPIO_EXPORT_PATH = GPIO_BASE_PATH + "/export"
+GPIO_UNEXPORT_PATH = GPIO_BASE_PATH + "/unexport"
+GPIO_PATH = GPIO_BASE_PATH + "/gpio%d"
 
-
-GPIO_PATH = GPIO_BASE_PATH + '/gpio%d'
-GPIO_VALUE_FILE = 'value'
-GPIO_DIRECTION_FILE = 'direction'
-GPIO_ACTIVE_LOW_FILE = 'active_low'
-GPIO_EDGE_FILE = 'edge'
+# file names
+GPIO_VALUE_FILE = "value"
+GPIO_DIRECTION_FILE = "direction"
+GPIO_ACTIVE_LOW_FILE = "active_low"
+GPIO_EDGE_FILE = "edge"
 
 
 class Value(Enum):
+    """Enum representing the logical state"""
     LOW = "0"
     HIGH = "1"
 
 
 class Direction(Enum):
-    INPUT = 'in'
-    OUTPUT = 'out'
-    OUTPUT_LOW = 'low'
-    OUTPUT_HIGH = 'high'
+    """Enum representing the direction"""
+    INPUT = "in"
+    OUTPUT = "out"
+    OUTPUT_LOW = "low"
+    OUTPUT_HIGH = "high"
 
 
 class ActiveLow(Enum):
+    """Enum representing the active_low status"""
     HIGH = "0"
     LOW = "1"
 
 
 class Edge(Enum):
-    NONE = 'none'
-    RISING = 'rising'
-    FALLING = 'falling'
-    BOTH = 'both'
+    """Enum representing the edge status"""
+    NONE = "none"
+    RISING = "rising"
+    FALLING = "falling"
+    BOTH = "both"
 
 
 class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentation/gpio/sysfs.txt
 
     """Base class for sysfs GPIO access"""
 
-    def __init__(self, gpio: int, ignore_busy: bool=False) -> None:
+    def __init__(self, gpio: int, ignore_busy: bool = False) -> None:
         """init with the gpio pin number and if the interface being used should be ignored"""
         self.gpio = gpio    # gpio number
         path = GPIO_PATH % self.gpio   # directory containing the gpio files
         self.gpioValueFile = path + '/' + GPIO_VALUE_FILE  # file to set/get value
         self.gpioDirectionFile = path + '/' + GPIO_DIRECTION_FILE  # file to set/get direction
-        self.gpioActiveLowFile = path + '/' + GPIO_ACTIVE_LOW_FILE # file to set/get active_low
-        self.gpioEdgeFile = path + '/' + GPIO_EDGE_FILE # file to set/get edge
+        self.gpioActiveLowFile = path + '/' + GPIO_ACTIVE_LOW_FILE  # file to set/get active_low
+        self.gpioEdgeFile = path + '/' + GPIO_EDGE_FILE  # file to set/get edge
         try:
             initGpio(gpio)  # init gpio sysfs interface
         except OSError as err:
@@ -107,7 +111,7 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
         """Read current GPIO direction"""
         # read from the direction file
         with open(self.gpioDirectionFile, 'r') as fd:
-            return Direction(fd.readline().rstrip("\n"))
+            return Direction(fd.readline().rstrip("\n"))    # catch ValueError if file content not valid
 
     def setDirection(self, direction: Direction) -> None:
         """Set the desired GPIO direction"""
@@ -138,7 +142,7 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
     def getEdge(self) -> Edge:
         """get edge setting of gpio"""
         with open(self.gpioEdgeFile, "r") as fd:
-            return Edge(fd.readline().rstrip("\n"))
+            return Edge(fd.readline().rstrip("\n"))     # catch ValueError if file content not valid
 
     def setEdge(self, edge: Edge) -> None:
         """set edge setting of gpio"""
@@ -147,7 +151,7 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
         # note: edge setting is reset when the gpio sysfs interface
         # is released!
 
-    def waitForEdge(self, timeout: Optional[int]=None) -> None:
+    def waitForEdge(self, timeout: Optional[int] = None) -> None:
         """wait for edge on gpio"""
         with open(self.gpioValueFile, "r") as fd:
             fd.read()   # somehow needs to be read before using select to work
@@ -157,10 +161,11 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
 
 def initGpio(gpio: int) -> None:
     """Write to the gpio export to make the gpio available in sysfs"""
-    with open(GPIO_EXPORT, 'w') as fd:
+    with open(GPIO_EXPORT_PATH, 'w') as fd:
         fd.write(str(gpio))
+
 
 def freeGpio(gpio: int) -> None:
     """Write to the gpio unexport to release the gpio sysfs interface"""
-    with open(GPIO_UNEXPORT, 'w') as fd:
+    with open(GPIO_UNEXPORT_PATH, 'w') as fd:
         fd.write(str(gpio))
