@@ -34,4 +34,4 @@ Module compatible with Python >= 3.5
 
 ## Install
 
-Run as root: `cp python/onionGpio.py /usr/lib/<PYTHON_VERSION>/onionGpio.py`
+Run as root: `python3 setup.py install` or use the .whl file
