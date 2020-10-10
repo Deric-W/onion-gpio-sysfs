@@ -2,18 +2,17 @@
 
 "Module for interfacing with gpio pins using the linux sysfs interface"
 
-from os.path import isfile
-from errno import EBUSY
-from enum import Enum
-from typing import Optional
-from select import select
-
 __version__ = "0.3"
 __author__ = 'Lazar, Justin Duplessis and Eric Wolf'
 __maintainer__ = "Eric Wolf"    # for this fork
 __email__ = "robo-eric@gmx.de"
 __contact__ = "https://github.com/Deric-W/onion-gpio-sysfs"
 
+from os.path import isfile
+from errno import EBUSY
+from enum import Enum
+from typing import Optional
+from select import select
 
 # file paths
 GPIO_BASE_PATH = "/sys/class/gpio"
@@ -151,7 +150,7 @@ class OnionGpio:    # sysfs documentation: https://www.kernel.org/doc/Documentat
         # note: edge setting is reset when the gpio sysfs interface
         # is released!
 
-    def waitForEdge(self, timeout: Optional[int] = None) -> None:
+    def waitForEdge(self, timeout: Optional[float] = None) -> None:
         """wait for edge on gpio"""
         with open(self.gpioValueFile, "r") as fd:
             fd.read()   # somehow needs to be read before using select to work
